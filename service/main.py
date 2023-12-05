@@ -16,11 +16,6 @@ def create_app() -> FastAPI:
         packages=[
             service.modules.api,
             service.modules.services,
-            # scoring_mgr.modules.repo,
-            # scoring_mgr.modules.services,
-            # scoring_mgr.modules.rpc,
-            # scoring_mgr.modules.tables,
-            # scoring_mgr.modules.tasks,
         ]
     )
 
