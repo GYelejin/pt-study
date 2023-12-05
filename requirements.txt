@@ -1,0 +1,11 @@
+fastapi
+python-multipart
+pydantic
+pydantic-settings
+dependency_injector
+aiofiles
+databases[asyncpg]
+alembic
+fastapi_sessions
+sqlalchemy
+psycopg2-binary

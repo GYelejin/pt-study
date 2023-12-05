@@ -1,0 +1,26 @@
+*.py[cod]
+*~
+*.pyc
+
+.mypy_cache
+.pytest_cache
+
+.idea/
+.vscode/
+__pycache__/
+venv/
+
+# general things to ignore
+dist/
+*.egg-info/
+*.egg
+*.py[cod]
+__pycache__/
+*.so
+*~
+
+# due to using tox and pytest
+.tox
+.cache
+
+.hypothesis
