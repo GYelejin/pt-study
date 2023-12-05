@@ -6,8 +6,6 @@ from .base import BaseRepo
 from service.modules.models import CreateUserDB, GetUserDB
 from service.modules.tables import UsersTable
 
-from service.modules.services import FileStorageService
-
 
 class UsersRepo(BaseRepo):
     @staticmethod
