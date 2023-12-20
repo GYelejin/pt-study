@@ -37,10 +37,7 @@ target_metadata = BaseModel.metadata
 
 
 def include_object(object, name, type_, reflected, compare_to):
-    if type_ == "table" and object.info.get("skip_autogenerate", False):
-        return False
-    else:
-        return True
+    return type_ != "table" or not object.info.get("skip_autogenerate", False)
 
 
 def run_migrations_offline() -> None:

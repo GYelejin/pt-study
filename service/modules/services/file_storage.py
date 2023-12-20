@@ -32,4 +32,4 @@ class FileStorageService:
 
     async def get_files_list(self, username: str) -> list[str]:
         user_dir = self.get_user_dir(username)
-        return list(i.name for i in user_dir.iterdir())
+        return [i.name for i in user_dir.iterdir()]
