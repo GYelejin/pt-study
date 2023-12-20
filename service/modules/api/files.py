@@ -1,4 +1,5 @@
 from typing import Annotated, TYPE_CHECKING
+import environ 
 
 from fastapi import Depends, UploadFile, File
 from dependency_injector.wiring import inject, Provide
@@ -14,6 +15,16 @@ if TYPE_CHECKING:
 
 router = BaseAPIRouter(prefix='/files', tags=['files'])
 
+# Configure Minio client
+from minio import Minio
+env = environ.Env()
+minio_client = Minio(
+    env("MINIO_HOST"),
+    access_key=env("MINIO_ROOT_USER"),
+    secret_key=env("MINIO_ROOT_PASSWORD"),
+    secure=True
+)
+
 
 @router.get("", dependencies=[Depends(cookie)])
 @inject
@@ -21,8 +32,9 @@ async def get_files_list(
         session_data: SessionData = Depends(verifier),
         files_service: 'FileStorageService' = Depends(Provide[Application.services.files]),
 ) -> list[str]:
-    return await files_service.get_files_list(session_data.username)
-
+    # Get the list of files from Minio
+    files_list = await files_service.get_files_list(session_data.username)
+    return files_list
 
 @router.post("/upload", dependencies=[Depends(cookie)])
 @inject
@@ -31,8 +43,8 @@ async def upload_file(
         session_data: SessionData = Depends(verifier),
         files_service: 'FileStorageService' = Depends(Provide[Application.services.files]),
 ) -> None:
-    await files_service.upload(session_data.username, data)
-
+    # Save the uploaded file to Minio
+    await files_service.upload(session_data.username, data, minio_client)
 
 @router.get("/download/{filename}", dependencies=[Depends(cookie)])
 @inject
@@ -41,7 +53,8 @@ async def download_file(
         session_data: SessionData = Depends(verifier),
         files_service: 'FileStorageService' = Depends(Provide[Application.services.files]),
 ) -> OctetStream:
-    data = files_service.download(session_data.username, filename)
+    # Download the file from Minio
+    data = files_service.download(session_data.username, filename, minio_client)
     return OctetStream(
         content=data,
         headers={

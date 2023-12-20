@@ -1,13 +1,21 @@
 import aiofiles
 import pathlib
 from typing import AsyncIterable
-
+from minio import Minio
+from minio.error import S3Error
 from fastapi import UploadFile
 from service.config import settings
 
 
 class FileStorageService:
     chunksize = 1024 * 10
+
+    def __init__(self):
+        self.minio_client = Minio(
+            settings.MINIO_ENDPOINT,
+            access_key=settings.MINIO_ACCESS_KEY,
+            secret_key=settings.MINIO_SECRET_KEY,
+        )
 
     @staticmethod
     def get_user_dir(username: str):
@@ -20,6 +28,9 @@ class FileStorageService:
         user_dir = self.get_user_dir(username)
         async with aiofiles.open(user_dir / file.filename, mode='w+b') as f:
             await f.write(await file.read())
+        await self.minio_client.fput_object(
+            settings.MINIO_BUCKET, file.filename, str(user_dir / file.filename)
+        )
 
     async def download(self, username: str, filename: str) -> AsyncIterable[bytes]:
         user_dir = self.get_user_dir(username)
